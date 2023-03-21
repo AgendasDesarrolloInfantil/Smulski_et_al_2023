@@ -1,0 +1,540 @@
+---
+title: "**Agendas científicas sobre desarrollo infantil en CONICET: evolución de becas e ingresos en el periodo 2010-2020**"
+author: Smulski, M., Giovannetti, F. Steeb, F., Pereyra Serra, A. L., Grasser, F., Jove, G., Cevasco, J.
+year: 2023
+output:
+  html_document:
+    fig_width: 40
+    code_folding: hide
+  pdf_document: 
+    toc: yes
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+```{r setup, include=FALSE}
+
+library(ggpubr)
+library(tidyverse)
+
+dataset <- read.csv("base_becas_e_ingresos_desarrollo_NNyA_2010_2020.csv", encoding = "UTF-8")
+
+ingresos_totales <- read.csv("becas_e_ingresos_totales_2010_2020.csv", fileEncoding = "latin1", sep = ";")
+
+dataset <- left_join(ingresos_totales, dataset, by = c("TIPO.CONVOCATORIA", "AÑO"))
+
+```
+
+<br>
+
+### **Figura 1.** Evolución de becas e ingresos en el período 2010-2020 en las convocatorias de temas generales y estratégicos.
+
+```{r, fig.height= 10, fig.width= 15}
+
+dataset%>%
+  filter(!grepl("COFINAN", CONVOCATORIA))%>%
+  filter(!grepl("FORTALECIMIENTO", CONVOCATORIA))%>%
+  filter(!grepl("LAT", CONVOCATORIA))%>%
+  filter(!grepl("ESPECIALES", CONVOCATORIA))%>%
+  filter(!grepl("PUE", CONVOCATORIA))%>%
+  filter(!grepl("REINSERCION", CONVOCATORIA))%>%
+  filter(!grepl("EXTERNA", CONVOCATORIA))%>%
+  filter(!grepl("U.E", CONVOCATORIA))%>%
+  filter(!grepl("UE", CONVOCATORIA))%>%
+  filter(!grepl("EXT", CONVOCATORIA))%>%
+  filter(!grepl("CIT", CONVOCATORIA))%>%
+  filter(!grepl("SALUD", CONVOCATORIA))%>%
+  mutate(DISCIPLINA.CODIGO = fct_recode(DISCIPLINA.CODIGO,
+                                        "Informática y Comunicaciones (KA4)" = "KA4",
+                                        "Biología (KB2)" = "KB2",
+                                        "Ciencias Médicas (KB1)" = "KB1",
+                                        "Psicología y Ciencias de la Educación (KS7)" = "KS7",
+                                        "Arqueología y Antropología Biológica (KS8)" = "KS8",
+                                        "Ciencias Antropológicas (KS9)" = "KS9"))%>%
+  mutate(DISCIPLINA.CODIGO = factor(DISCIPLINA.CODIGO, levels = c("Informática y Comunicaciones (KA4)",
+                                                                  "Ciencias Médicas (KB1)",
+                                                                  "Biología (KB2)",
+                                                                  "Psicología y Ciencias de la Educación (KS7)",
+                                                                  "Arqueología y Antropología Biológica (KS8)",
+                                                                   "Ciencias Antropológicas (KS9)")))-> generales.estrategicos
+
+
+
+p1 <- generales.estrategicos%>%
+  mutate(AÑO = as.numeric(AÑO))%>%
+  filter(!is.na(AÑO))%>%
+  filter(AÑO != 2021)%>%
+  filter(TIPO.CONVOCATORIA != "BECA FINALIZACIÓN")%>%
+  group_by(AÑO, TIPO.CONVOCATORIA)%>%
+  summarise(total = max(TOTAL.GENERALES),
+            cantidad_desarrollo =n(),
+            porcentaje = (cantidad_desarrollo/total)*100)%>%
+  
+  ggplot(aes(x = AÑO, y = cantidad_desarrollo, color = TIPO.CONVOCATORIA, group = TIPO.CONVOCATORIA))+
+  geom_point(size = 5)+
+  geom_line(size = 2)+
+  scale_x_continuous(limits = c(2010, 2020),breaks = c(2010:2020))+
+  ylim(c(0,50))+
+    xlab("Año")+
+  
+  labs(color = "Categoría")+
+  ylab("Frecuencia absoluta")+
+  
+  scale_color_discrete(labels = c("Beca doctoral", "Beca postdoctoral", "CIC"))+
+  theme_minimal(base_size = 18)+
+  theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+
+p2 <- generales.estrategicos%>%
+  mutate(AÑO = as.numeric(AÑO))%>%
+  filter(!is.na(AÑO))%>%
+  filter(AÑO != 2021)%>%
+  filter(TIPO.CONVOCATORIA != "BECA FINALIZACIÓN")%>%
+  group_by(AÑO, TIPO.CONVOCATORIA)%>%
+  summarise(total = max(TOTAL.GENERALES),
+            n =n(),
+            porcentaje = (n/total)*100)%>%
+  
+  ggplot(aes(x = AÑO, y = porcentaje, color = TIPO.CONVOCATORIA, group = TIPO.CONVOCATORIA))+
+  geom_point(size = 5)+
+  geom_line(size = 2)+
+  scale_x_continuous(limits = c(2010, 2020),breaks = c(2010:2020))+
+  ylim(c(0,10))+
+    xlab("Año")+
+  ylab("Frecuencia relativa")+
+  
+  labs(color = "Categoría")+
+  
+  scale_color_discrete(labels = c("Beca doctoral", "Beca postdoctoral", "CIC"))+
+  theme_minimal(base_size = 18)+
+  theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+
+
+p3 <- generales.estrategicos%>%
+  mutate(AÑO = as.numeric(AÑO))%>%
+  filter(!is.na(AÑO))%>%
+  filter(AÑO != 2021)%>%
+  filter(TIPO.CONVOCATORIA != "BECA FINALIZACIÓN")%>%
+  group_by(AÑO, TIPO.CONVOCATORIA)%>%
+  summarise(total_generales = max(TOTAL.GENERALES),
+            n =n(),
+            porcentaje = (n/total_generales)*100)%>%
+  
+  ggplot(aes(x = AÑO, y = total_generales, color = TIPO.CONVOCATORIA, group = TIPO.CONVOCATORIA))+
+  geom_point(size = 5)+
+  geom_line(size = 2)+
+  scale_x_continuous(limits = c(2010, 2020),breaks = c(2010:2020))+
+  ylim(c(0,2000))+
+  xlab("Año")+
+  ylab("Total")+
+  labs(color = "Categoría")+
+  
+  scale_color_discrete(labels = c("Beca doctoral", "Beca postdoctoral", "CIC"))+
+  theme_minimal(base_size = 18)+
+  theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+
+
+
+plot0 <- ggarrange(p1, p2, p3,labels = c("A", "B", "C"), ncol = 1, common.legend = T, font.label = list(size = 20), vjust = 1)
+plot0
+
+
+# plot0%>%
+#   ggexport(filename = "graficos/plot_todas1.png", width = 1080, height = 1080)
+
+
+
+
+```
+
+<br>
+
+### **Figura 2.** Evolución de becas e ingresos en el período 2010-2020 en la convocatoria de temas generales
+
+```{r, fig.height= 10, fig.width= 15}
+
+
+dataset.generales = dataset%>%
+  filter(!grepl("EST", CONVOCATORIA))%>%
+  filter(!grepl("COFINAN", CONVOCATORIA))%>%
+  filter(!grepl("FORTALECIMIENTO", CONVOCATORIA))%>%
+  filter(!grepl("LAT", CONVOCATORIA))%>%
+  filter(!grepl("ESPECIALES", CONVOCATORIA))%>%
+  filter(!grepl("PUE", CONVOCATORIA))%>%
+  filter(!grepl("REINSERCION", CONVOCATORIA))%>%
+  filter(!grepl("EXTERNA", CONVOCATORIA))%>%
+  filter(!grepl("U.E", CONVOCATORIA))%>%
+  filter(!grepl("UE", CONVOCATORIA))%>%
+  filter(!grepl("EXT", CONVOCATORIA))%>%
+  filter(!grepl("CIT", CONVOCATORIA))%>%
+  filter(!grepl("SALUD", CONVOCATORIA))
+
+
+
+
+p1 <- dataset.generales%>%
+  mutate(AÑO = as.numeric(AÑO))%>%
+  filter(!is.na(AÑO))%>%
+  filter(AÑO != 2021)%>%
+  filter(TIPO.CONVOCATORIA != "BECA FINALIZACIÓN")%>%
+  group_by(AÑO, TIPO.CONVOCATORIA)%>%
+  summarise(total = max(TOTAL.GENERALES),
+            cantidad_desarrollo =n(),
+            porcentaje = (cantidad_desarrollo/total)*100)%>%
+  
+  ggplot(aes(x = AÑO, y = cantidad_desarrollo, color = TIPO.CONVOCATORIA, group = TIPO.CONVOCATORIA))+
+  geom_point(size = 5)+
+  geom_line(size = 2)+
+  scale_x_continuous(limits = c(2010, 2020),breaks = c(2010:2020))+
+  ylim(c(0,50))+
+    xlab("Año")+
+  
+  labs(color = "Categoría")+
+  ylab("Frecuencia absoluta")+
+  
+  scale_color_discrete(labels = c("Beca doctoral", "Beca postdoctoral", "CIC"))+
+  theme_minimal(base_size = 18)+
+  theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+
+p2 <- dataset.generales%>%
+  mutate(AÑO = as.numeric(AÑO))%>%
+  filter(!is.na(AÑO))%>%
+  filter(AÑO != 2021)%>%
+  filter(TIPO.CONVOCATORIA != "BECA FINALIZACIÓN")%>%
+  group_by(AÑO, TIPO.CONVOCATORIA)%>%
+  summarise(total = max(TOTAL.GENERALES),
+            n =n(),
+            porcentaje = (n/total)*100)%>%
+  
+  ggplot(aes(x = AÑO, y = porcentaje, color = TIPO.CONVOCATORIA, group = TIPO.CONVOCATORIA))+
+  geom_point(size = 5)+
+  geom_line(size = 2)+
+  scale_x_continuous(limits = c(2010, 2020),breaks = c(2010:2020))+
+  ylim(c(0,5))+
+    xlab("Año")+
+  ylab("Frecuencia relativa")+
+  
+  labs(color = "Categoría")+
+  
+  scale_color_discrete(labels = c("Beca doctoral", "Beca postdoctoral", "CIC"))+
+  theme_minimal(base_size = 18)+
+  theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+
+
+p3 <- dataset.generales%>%
+  mutate(AÑO = as.numeric(AÑO))%>%
+  filter(!is.na(AÑO))%>%
+  filter(AÑO != 2021)%>%
+  filter(TIPO.CONVOCATORIA != "BECA FINALIZACIÓN")%>%
+  group_by(AÑO, TIPO.CONVOCATORIA)%>%
+  summarise(total_generales = max(TOTAL.GENERALES),
+            n =n(),
+            porcentaje = (n/total_generales)*100)%>%
+  
+  ggplot(aes(x = AÑO, y = total_generales, color = TIPO.CONVOCATORIA, group = TIPO.CONVOCATORIA))+
+  geom_point(size = 5)+
+  geom_line(size = 2)+
+  scale_x_continuous(limits = c(2010, 2020),breaks = c(2010:2020))+
+  ylim(c(0,2000))+
+  xlab("Año")+
+  ylab("Total")+
+  labs(color = "Categoría")+
+  
+  scale_color_discrete(labels = c("Beca doctoral", "Beca postdoctoral", "CIC"))+
+  theme_minimal(base_size = 18)+
+  theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+
+
+
+plot1 <- ggarrange(p1, p2, p3,labels = c("A", "B", "C"), ncol = 1, common.legend = T, font.label = list(size = 20), vjust = 1)
+plot1
+
+
+
+
+
+```
+
+<br>
+
+### **Figura 3.** Evolución de becas e ingresos en el período 2010-2020 en la convocatoria de temas estratégicos
+
+```{r, fig.height= 10, fig.width= 15}
+
+
+missing.posdoc <- data.frame(AÑO = c(2013,2014, 2015, 2016, 2014),
+                             TIPO.CONVOCATORIA = c(rep("BECA POSDOC", 4), "CIC"),
+                             total = c(35,61,53,141,91),
+                             cantidad_desarrollo = rep(0,5),
+                             porcentaje = rep(0,5))
+
+estrategicos = dataset%>%
+  filter(grepl("EST", CONVOCATORIA))%>%
+  mutate(AÑO = as.numeric(AÑO))%>%
+  filter(!is.na(AÑO))%>%
+  filter(AÑO != 2021)
+
+df = estrategicos%>%
+  group_by(AÑO, TIPO.CONVOCATORIA)%>%
+  summarise(total = max(TOTAL.ESTRATEGICOS),
+            cantidad_desarrollo =n(),
+            porcentaje = (cantidad_desarrollo/total)*100)
+
+df = rbind(df, missing.posdoc)
+
+
+
+p1 <- df%>%
+  ggplot(aes(x = AÑO, y = cantidad_desarrollo, color = TIPO.CONVOCATORIA, group = TIPO.CONVOCATORIA))+
+  geom_point(size = 5)+
+  geom_line(size = 2)+
+  scale_x_continuous(limits = c(2010, 2020),breaks = c(2010:2020))+
+  # ylim(c(0,10))+
+  xlab("Año")+
+  ylab("Frecuencia absoluta")+
+  labs(color = "Categoría")+
+  
+  scale_color_discrete(labels = c("Beca doctoral", "Beca postdoctoral", "CIC"))+
+  theme_minimal(base_size = 18)+
+  theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+
+
+
+p2 <- df%>%
+  ggplot(aes(x = AÑO, y = porcentaje, color = TIPO.CONVOCATORIA, group = TIPO.CONVOCATORIA))+
+  geom_point(size = 5)+
+  geom_line(size = 2)+
+  scale_x_continuous(limits = c(2010, 2020),breaks = c(2010:2020))+
+  ylim(c(0,15))+
+  xlab("Año")+
+  ylab("Frecuencia relativa")+
+  labs(color = "Categoría")+
+  
+  scale_color_discrete(labels = c("Beca doctoral", "Beca postdoctoral", "CIC"))+
+  theme_minimal(base_size = 18)+
+  theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+
+
+p3 <- df%>%
+
+  ggplot(aes(x = AÑO, y = total, color = TIPO.CONVOCATORIA, group = TIPO.CONVOCATORIA))+
+  geom_point(size = 5)+
+  geom_line(size = 2)+
+  scale_x_continuous(limits = c(2010, 2020),breaks = c(2010:2020))+
+  ylim(c(0,500))+
+  xlab("Año")+
+  ylab("Total convocatoria")+
+  labs(color = "Categoría")+
+  
+  scale_color_discrete(labels = c("Beca doctoral", "Beca postdoctoral", "CIC"))+
+  theme_minimal(base_size = 18)+
+  theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+
+
+
+
+plot2 <- ggarrange(p1, p2, p3,labels = c("A", "B", "C"), ncol = 1, common.legend = T, font.label = list(size = 20), vjust = 1)
+plot2
+
+plot2%>%
+  ggexport(filename = "graficos/plot_estrategicos1.png", width = 1080, height = 1080)
+
+
+# p2%>%
+#   ggplotly()
+
+
+```
+
+<br>
+
+### **Figura 4.** Distribución de ingresos en Temas Generales y Estratégicos según comisión evaluadora y categoría
+
+```{r, fig.height= 10, fig.width= 15}
+
+p1 = generales.estrategicos%>%
+  
+  filter(!grepl("EST", CONVOCATORIA))%>%
+  filter(!is.na(AÑO))%>%
+  filter(AÑO != 2021)%>%
+  group_by(DISCIPLINA.CODIGO, TIPO.CONVOCATORIA)%>%
+  summarise(n =n())%>%
+  group_by(TIPO.CONVOCATORIA)%>%
+  mutate(total = sum(n))%>%
+  group_by(TIPO.CONVOCATORIA, DISCIPLINA.CODIGO)%>%
+  mutate(porcentaje = n/total)%>%
+  
+  ggplot(aes(x = TIPO.CONVOCATORIA, y = porcentaje*100, fill = DISCIPLINA.CODIGO))+
+  geom_bar(stat = "identity")+
+  geom_text(aes(label = ifelse(porcentaje >= 0.04, paste(round(porcentaje*100, 1), "%")," ")),
+              position = position_stack(vjust = .5), size = 5,
+            color = "white", fontface  = "bold")+
+  xlab("Categoría")+
+  ylab("Frecuencia absoluta")+
+  labs(fill = "Comisión evaluadora")+
+  # scale_fill_discrete(labels = c("CABA", "Buenos Aires",  "Córdoba", "Santa Fe", "Mendoza"))+
+  # scale_y_continuous(limits = c(0,15))+
+  theme_minimal(base_size = 18)+
+  ggtitle("Temas Generales")+
+  theme(plot.title = element_text(hjust = 0.5))
+  # theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+  # ggtitle("Series históricas de cantidad de proyectos aprobados en las 5 provincias con mas proyectos aprobados")+
+
+
+
+
+
+p2 = generales.estrategicos%>%
+  filter(grepl("EST", CONVOCATORIA))%>%
+  filter(!is.na(AÑO))%>%
+  filter(AÑO != 2021)%>%
+  group_by(DISCIPLINA.CODIGO, TIPO.CONVOCATORIA)%>%
+  summarise(n =n())%>%
+  group_by(TIPO.CONVOCATORIA)%>%
+  mutate(total = sum(n))%>%
+  group_by(TIPO.CONVOCATORIA, DISCIPLINA.CODIGO)%>%
+  mutate(porcentaje = n/total)%>%
+  
+  ggplot(aes(x = TIPO.CONVOCATORIA, y = porcentaje*100, fill = DISCIPLINA.CODIGO))+
+  geom_bar(stat = "identity")+
+  geom_text(aes(label = ifelse(porcentaje >= 0.04, paste(round(porcentaje*100, 1), "%")," ")),
+              position = position_stack(vjust = .5), size = 5,
+            color = "white", fontface  = "bold")+
+  xlab("Categoría")+
+  ylab("Frecuencia absoluta")+
+  labs(fill = "Comisión evaluadora")+
+  # scale_fill_discrete(labels = c("CABA", "Buenos Aires",  "Córdoba", "Santa Fe", "Mendoza"))+
+  # scale_y_continuous(limits = c(0,15))+
+  theme_minimal(base_size = 18)+
+  # theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+  ggtitle("Temas Estratégicos")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+plot.comisiones = ggarrange(p1, p2, labels = c("A", "B"), ncol = 2, common.legend = T, font.label = list(size = 20), vjust = 1)
+plot.comisiones
+
+
+
+```
+
+<br>
+
+### **Figura 5.** Distribución de ingresos en Temas Generales y Estratégicos según provincia.
+
+```{r, fig.height= 10, fig.width= 15}
+
+
+
+
+p1 <- generales.estrategicos%>%
+  filter(!is.na(AÑO))%>%
+  filter(PAIS == "ARGENTINA")%>%
+  filter(!is.na(PROVINCIA))%>%
+  filter(AÑO != 2021)%>%
+  filter(TIPO.CONVOCATORIA != "BECA FINALIZACIÓN")%>%
+  group_by(PROVINCIA)%>%
+  summarise(n =n())%>%
+  
+  ggplot(aes(x = reorder(PROVINCIA, -n), y = n, fill = PROVINCIA))+
+  geom_bar(stat ="identity")+
+  theme_minimal(base_size = 18)+
+  xlab("Provincia")+
+  ylab("Frecuencia absoluta")+
+  theme(legend.position="none")+
+  theme(axis.text.x = element_text(angle = 90, size = 14, vjust = 0.5),
+        axis.title.x = element_blank())
+
+p1
+# 
+# p1%>%
+#   ggexport(filename = "graficos/plot__prov_todas.png", width = 1080, height = 540)
+
+
+
+```
+
+<br>
+
+### **Figura 6.** Evolución de los ingresos en Temas Generales y Estratégicos según provincia.
+
+```{r, fig.height= 10, fig.width= 15}
+
+top_5_provincias = c("CABA", "BUENOS AIRES", "CORDOBA", "SANTA FE", "MENDOZA")
+
+
+plot4 = dataset.generales%>%
+  filter(!is.na(AÑO))%>%
+  filter(PAIS == "ARGENTINA")%>%
+  filter(!is.na(PROVINCIA))%>%
+  filter(AÑO != 2021)%>%
+  filter(PROVINCIA %in% top_5_provincias)%>%
+  mutate(PROVINCIA = factor(PROVINCIA, levels = top_5_provincias))%>%
+  
+  group_by(AÑO, PROVINCIA)%>%
+  summarise(n =n())%>%
+  group_by(AÑO)%>%
+  mutate(total = sum(n))%>%
+  group_by(AÑO, PROVINCIA)%>%
+  mutate(porcentaje = n/total)%>%
+  
+  ggplot(aes(x = AÑO, y = n, fill = PROVINCIA))+
+  geom_bar(stat = "identity")+
+  geom_text(aes(label = ifelse(porcentaje >= 0.04, paste(round(porcentaje*100, 1), "%")," ")),
+              position = position_stack(vjust = .5), size = 5,
+            color = "white", fontface  = "bold")+
+  xlab("Año")+
+  ylab("Frecuencia absoluta")+
+  labs(fill = "Provincia")+
+  scale_x_continuous(breaks = 2010:2020, limits = c(2009.5, 2020.5))+
+  
+  scale_fill_discrete(labels = c("CABA", "Buenos Aires",  "Córdoba", "Santa Fe", "Mendoza"))+
+  # scale_y_continuous(limits = c(0,15))+
+  theme_minimal(base_size = 18)+
+  theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+  # ggtitle("Series históricas de cantidad de proyectos aprobados en las 5 provincias con mas proyectos aprobados")+
+
+
+
+
+plot5 = estrategicos%>%
+  filter(!is.na(AÑO))%>%
+  filter(PAIS == "ARGENTINA")%>%
+  filter(!is.na(PROVINCIA))%>%
+  filter(AÑO != 2021)%>%
+  filter(PROVINCIA %in% top_5_provincias)%>%
+  mutate(PROVINCIA = factor(PROVINCIA, levels = top_5_provincias))%>%
+  
+  group_by(AÑO, PROVINCIA)%>%
+  summarise(n =n())%>%
+  group_by(AÑO)%>%
+  mutate(total = sum(n))%>%
+  group_by(AÑO, PROVINCIA)%>%
+  mutate(porcentaje = n/total)%>%
+  
+  ggplot(aes(x = AÑO, y = n, fill = PROVINCIA))+
+  geom_bar(stat = "identity")+
+  geom_text(aes(label = ifelse(porcentaje >= 0.04, paste(round(porcentaje*100, 1), "%")," ")),
+              position = position_stack(vjust = .5), color = "white", fontface  = "bold", size = 5)+
+  xlab("Año")+
+  ylab("Frecuencia absoluta")+
+  scale_x_continuous(breaks = 2010:2020, limits = c(2009.5, 2020.5))+
+
+  scale_fill_discrete(labels = c("CABA", "Buenos Aires",  "Córdoba", "Santa Fe", "Mendoza"))+
+  theme_minimal(base_size = 18)+
+  theme(legend.position = "bottom", plot.margin = unit(c(0,0,0,2), "lines"))
+  # ggtitle("Series históricas de cantidad de proyectos aprobados en las 5 provincias con mas proyectos aprobados")+
+
+
+
+
+
+
+plot_prov = ggarrange(plot4, plot5,labels = c("A", "B"), ncol = 1, common.legend = T, legend = "bottom", font.label = list(size = 20), vjust = 1)
+plot_prov
+
+# plot_prov%>%
+#   ggexport(filename = "graficos/plot__prov.png", width = 1080, height = 1080)
+
+```
