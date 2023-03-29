@@ -1,5 +1,4 @@
-**Agendas científicas sobre desarrollo infantil en CONICET: evolución de
-becas e ingresos en el periodo 2010-2020**
+**Agendas científicas sobre desarrollo infantil en CONICET: evolución de becas e ingresos de investigadores en el periodo 2010-2020**
 ================
 Smulski, M., Giovannetti, F. Steeb, F., Pereyra Serra, A. L., Grasser,
 F., Jove, G., Cevasco, J.
