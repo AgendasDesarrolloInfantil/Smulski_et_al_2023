@@ -15,6 +15,5 @@ Los datos utilizados para el presente trabajo se encuentran disponibles en el ar
 ## Análisis
 Los análisis realizados en el presente trabajo pueden visualizarse junto con su respectivo código en el archivo [Smulski_et_al_2023_PLOTS.html](http://htmlpreview.github.io/?https://github.com/AgendasDesarrolloInfantil/Smulski_et_al_2023/blob/master/Smulski_et_al_2023_PLOTS.html). Para acceder al código fuente, dirigirse a [Smulski_et_al_2023_PLOTS.Rmd](Smulski_et_al_2023_PLOTS.Rmd)
 
-<!--## Cómo citarnos
-referencia referencia referencia referencia referencia referencia referencia referencia referencia 
-  -->
+## Cómo citarnos
+Smulski, M., Giovannetti, F., Steeb, F., Pereyra Serra, A. L., Grasser, F. B., Jove, G. M., & Cevasco, J. (2024). Agendas científicas sobre desarrollo infantil en CONICET: Evolución de becas e ingresos de investigadores en el periodo 2010-2020. Revista Iberoamericana De Ciencia, Tecnología Y Sociedad - CTS [https://ojs.revistacts.net/index.php/CTS/article/view/410](https://ojs.revistacts.net/index.php/CTS/article/view/410)
