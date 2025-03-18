@@ -1,4 +1,5 @@
 **Agendas científicas y agendas políticas sobre desarrollo infantil: evolución de becas e ingresos de investigadores al CONICET en el periodo 2010-2020**
+[![DOI](https://img.shields.io/badge/DOI-10.52712%2Fissn.1850--0013--410-blue)](https://doi.org/10.52712/issn.1850-0013-410)
 ================
 Smulski, M., Giovannetti, F. Steeb, F., Pereyra Serra, A. L., Grasser,
 F., Jove, G., Cevasco, J.
